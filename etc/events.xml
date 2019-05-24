@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="sales_order_invoice_pay">
+        <observer name="Vivapets_Moloni_Order_Invoice_Pay" instance="Vivapets\Moloni\Observer\Sales\Order\InvoicePay" />
+    </event>
+</config>

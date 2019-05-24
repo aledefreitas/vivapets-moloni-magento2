@@ -1,1 +1,33 @@
-# vivapets-moloni-magento2
+# Vivapets Moloni Magento 2.3 Integration
+
+**THE PURPOSE OF THIS REPOSITORY IS ONLY TO SHARE MY CODE AND HELP PEOPLE HAVE A BASE TO START THEIR OWN IMPLEMENTATION**
+
+--------------------------------------
+
+## WARNING
+
+**THIS IS ONLY AN EXAMPLE OF OUR REAL WORLD IMPLEMENTATION TO INTEGRATE ORDERS AT VIVAPETS TO MOLONI INVOICING.**
+
+**THIS REPOSITORY HAS LOGIC IMPLEMENTED SUITED TO FIT OUR USE CASE ONLY, AND THIS REPOSITORY IS SHARED ONLY AS AN EXAMPLE AND A STARTING POINT TO WHOEVER IS DEVELOPING AN INTEGRATION WITH MOLONI**
+
+**NOT ALL MOLONI API ENDPOINTS ARE IMPLEMENTED**
+
+**THIS WAS DEVELOPED IN ONLY 6 DAYS OF WORK-TIME, >SO TAKE IT WITH A GRAIN OF SALT<**
+
+**YOU >WILL< NEED TO ADAPT THIS IF YOU'RE DEVELOPING YOUR OWN INTEGRATION TO FIT YOUR NEEDS**
+
+--------------------------------------
+
+## Compatibility
+
+- Magento 2.3.x (**This was only tested in Magento 2.3.1**)
+- This was only tested in **PHP 7.2 and superior**
+
+## Requirements
+
+- Magento 2.3.x
+- RabbitMQ configured in your store
+
+## Notes
+
+Credentials are currently hardcoded into `Vivapets\Moloni\Api\CredentialsInterface`

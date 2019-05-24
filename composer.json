@@ -1,0 +1,21 @@
+{
+    "name": "aledefreitas/vivapets-moloni-magento2",
+    "description": "Magento 2 Module to integrate with invoicing system Moloni",
+    "type": "magento2-module",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Alexandre de Freitas Caetano",
+            "email": "alxandrefc2@hotmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Vivapets\\Moloni\\": ""
+        }
+    }
+}

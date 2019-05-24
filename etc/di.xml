@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Vivapets\Moloni\Api\Endpoints\CompaniesEndpointInterface" type="Vivapets\Moloni\Model\Endpoints\CompaniesEndpoint" />
+    <preference for="Vivapets\Moloni\Api\Endpoints\CountriesEndpointInterface" type="Vivapets\Moloni\Model\Endpoints\CountriesEndpoint" />
+    <preference for="Vivapets\Moloni\Api\Endpoints\CurrenciesEndpointInterface" type="Vivapets\Moloni\Model\Endpoints\CurrenciesEndpoint" />
+    <preference for="Vivapets\Moloni\Api\Endpoints\CustomersEndpointInterface" type="Vivapets\Moloni\Model\Endpoints\CustomersEndpoint" />
+    <preference for="Vivapets\Moloni\Api\Endpoints\DocumentSetsEndpointInterface" type="Vivapets\Moloni\Model\Endpoints\DocumentSetsEndpoint" />
+    <preference for="Vivapets\Moloni\Api\Endpoints\InvoicesEndpointInterface" type="Vivapets\Moloni\Model\Endpoints\InvoicesEndpoint" />
+    <preference for="Vivapets\Moloni\Api\Endpoints\InvoiceReceiptsEndpointInterface" type="Vivapets\Moloni\Model\Endpoints\InvoiceReceiptsEndpoint" />
+    <preference for="Vivapets\Moloni\Api\Endpoints\LanguagesEndpointInterface" type="Vivapets\Moloni\Model\Endpoints\LanguagesEndpoint" />
+    <preference for="Vivapets\Moloni\Api\Endpoints\MaturityDatesEndpointInterface" type="Vivapets\Moloni\Model\Endpoints\MaturityDatesEndpoint" />
+    <preference for="Vivapets\Moloni\Api\Endpoints\MeasurementUnitsEndpointInterface" type="Vivapets\Moloni\Model\Endpoints\MeasurementUnitsEndpoint" />
+    <preference for="Vivapets\Moloni\Api\Endpoints\PaymentMethodsEndpointInterface" type="Vivapets\Moloni\Model\Endpoints\PaymentMethodsEndpoint" />
+    <preference for="Vivapets\Moloni\Api\Endpoints\ProductCategoriesEndpointInterface" type="Vivapets\Moloni\Model\Endpoints\ProductCategoriesEndpoint" />
+    <preference for="Vivapets\Moloni\Api\Endpoints\ProductsEndpointInterface" type="Vivapets\Moloni\Model\Endpoints\ProductsEndpoint" />
+    <preference for="Vivapets\Moloni\Api\Endpoints\TaxesEndpointInterface" type="Vivapets\Moloni\Model\Endpoints\TaxesEndpoint" />
+
+    <preference for="Vivapets\Moloni\Api\Queue\MessageInterface" type="Vivapets\Moloni\Queue\Message" />
+
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="vivapets:moloni:moloni-invoice" xsi:type="object">Vivapets\Moloni\Console\Command\MoloniInvoiceCommand</item>
+            </argument>
+        </arguments>
+    </type>
+</config>
