@@ -24,4 +24,8 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="Magento\Sales\Api\OrderManagementInterface">
+        <plugin name="Vivapets_Moloni::OrderPlaceAfterPlugin" type="Vivapets\Moloni\Plugin\Sales\Api\OrderManagement" sortOrder="99" />
+    </type>
 </config>

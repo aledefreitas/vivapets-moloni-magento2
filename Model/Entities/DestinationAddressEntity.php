@@ -27,7 +27,7 @@ class DestinationAddressEntity extends AbstractEntity implements DestinationAddr
     ) {
         $name = $delivery_destination_customer_name ?? '';
         $address = $delivery_destination_address ?? '';
-
+        
         return parent::__construct([
             'delivery_destination_address' => trim($name . ', '. $address),
             'delivery_destination_city' => $delivery_destination_city ?? '',

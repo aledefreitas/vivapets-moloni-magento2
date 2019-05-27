@@ -49,8 +49,12 @@ class InvoicePay implements ObserverInterface
     public function execute(Observer $observer)
     {
         try {
-            $invoice = $observer->getEvent();
+            $invoice = $observer->getData('invoice');
             $order = $invoice->getOrder();
+
+            if($order->getEntityId() === null) {
+                return;
+            }
 
             // Ignores invoice making for test orders made by our team
             if(in_array($order->getCustomerEmail(), [
@@ -59,12 +63,12 @@ class InvoicePay implements ObserverInterface
                 'mariana@vivapets.com',
                 'rita@vivapets.com'
             ])) {
-                return false;
+                return;
             }
 
             // Also ignores orders where customer's firstname is test
             if(strtolower($order->getCustomerFirstname()) == 'teste123') {
-                return false;
+                return;
             }
 
             $message = $this->queueMessageFactory->create([
@@ -73,7 +77,7 @@ class InvoicePay implements ObserverInterface
 
             $this->queuePublisher->publish($message);
         } catch (\Exception $e) {
-            return false;
+            return __('An error occurred while processing your order. Please contact us now.');
         }
     }
 }
