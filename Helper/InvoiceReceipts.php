@@ -33,6 +33,8 @@ use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Store\Model\Store;
 use Magento\Shipping\Model\Config as ShippingConfig;
 use Magento\Store\Model\ScopeInterface;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+use Magento\Sales\Model\Order\Item;
 
 class InvoiceReceipts
 {
@@ -175,6 +177,7 @@ class InvoiceReceipts
 
         $shippingAddress = $order->getShippingAddress();
         $shipping_destination = new DestinationAddressEntity(
+            $shippingAddress->getFirstname() . ' ' . $shippingAddress->getLastname(),
             implode(', ', $shippingAddress->getStreet()), // delivery_destination_address
             trim($shippingAddress->getCity() . ' ' . $shippingAddress->getRegion()), // delivery_destination_city
             $this->postcodeFixer->filterZipCode($shippingAddress->getPostcode(), $shippingAddress->getCountryId()), // delivery_destination_zip_code
@@ -183,16 +186,19 @@ class InvoiceReceipts
 
         $currency_id = null;
         $currency_exchange_rate = null;
+        $currency_total_note = null;
 
         if($store_currency !== $base_currency) {
             $currency_id = $this->currenciesService->getCurrency($store_currency);
 
             if(isset($currency_id)) {
                 $currency_exchange_rate = $store->getBaseCurrency()->getRate($store_currency);
+            } else {
+                $totalCurrentCurrency = $store->getCurrentCurrency()->format($order->getGrandTotal(), [], false);
+                $currency_total_note = "Order total in currency ({$store_currency}): {$totalCurrentCurrency}";
             }
         }
 
-        // @TODO: Implement this as a configuration in admin with store view scope, instead of hardcoded
         $document_set_series = $order->getStoreId() == 2 ? 'M' : 'V';
 
         return $this->invoiceReceiptsApi->insert(
@@ -211,8 +217,79 @@ class InvoiceReceipts
             $currency_exchange_rate, // exchange_rate
             [
                 'status' => 0,
-                'notes' => 'EORI PT514753790',
+                'notes' => $currency_total_note . '
+                EORI PT514753790',
             ]
+        );
+    }
+
+    /**
+     * Builds the product entity object
+     *
+     * @param  \Magento\Sales\Model\Order\Item  $product
+     * @param  \Magento\Sales\Model\Order  $order
+     *
+     * @return \Vivapets\Moloni\Model\Entities\ProductCollectionEntity
+     */
+    private function buildProductEntity(Item $product, Order $order)
+    {
+        $child_products = null;
+        $product_name = $product->getName();
+
+        if($product->getProduct()->getTypeId() === Configurable::TYPE_CODE) {
+            $usedProducts = $product->getChildrenItems();
+            if(count($usedProducts) > 0) {
+                $productOptions = $product->getProductOptions();
+                $options = [];
+
+                if(isset($productOptions['attributes_info']) and count($productOptions['attributes_info']) > 0) {
+                    foreach($productOptions['attributes_info'] as $option) {
+                        $options[] = "{$option['label']}: {$option['value']}";
+                    }
+                }
+
+                if(count($options) > 0) {
+                    $product_name .= ' - ' . implode('-', $options);
+                }
+            }
+        }
+
+        $product_id = $this->productsService->getProduct($product->getProduct());
+        $product_qty = (float)$product->getQtyOrdered();
+
+        $exemption_reason = null;
+        $taxes = new TaxesCollectionEntity();
+
+        $taxRate = $this->taxCalculationService->getProductOrderTaxRate($order, $product->getProduct());
+
+        if($taxRate > 0) {
+            $taxes->addTax(new TaxEntity(
+                $this->taxesService->getTax($taxRate),
+                $taxRate
+            ));
+        } else {
+            $exemption_reason = Taxes::DEFAULT_EXEMPTION_REASON;
+        }
+
+        $price = round((($product->getBaseOriginalPrice() * 100) / (100+$taxRate)), 5);
+        $discountPercent = 0;
+
+        $priceWithDiscount = (float)$product->getBasePriceInclTax();
+        $priceDiscount = (float)$product->getBaseOriginalPrice() - $priceWithDiscount;
+
+        if($priceDiscount > 0) {
+            $discountPercent = (round((float)$priceDiscount,2) / round((float)$product->getBaseOriginalPrice(), 2)) * 100;
+        }
+
+        return new ProductEntity(
+            $product_id,
+            $product_name,
+            $product_qty,
+            $price,
+            $taxes,
+            $exemption_reason,
+            $discountPercent,
+            $child_products
         );
     }
 
@@ -228,39 +305,7 @@ class InvoiceReceipts
         $products = new ProductCollectionEntity();
 
         foreach($order->getAllVisibleItems() as $product) {
-            $exemption_reason = null;
-            $taxes = new TaxesCollectionEntity();
-
-            $taxRate = $this->taxCalculationService->getProductOrderTaxRate($order, $product->getProduct());
-
-            if($taxRate > 0) {
-                $taxes->addTax(new TaxEntity(
-                    $this->taxesService->getTax($taxRate),
-                    $taxRate
-                ));
-            } else {
-                $exemption_reason = Taxes::DEFAULT_EXEMPTION_REASON;
-            }
-
-            $price = round((($product->getBaseOriginalPrice() * 100) / (100+$taxRate)), 5);
-            $discountPercent = 0;
-
-            $priceWithDiscount = (float)$product->getBasePriceInclTax();
-            $priceDiscount = (float)$product->getBaseOriginalPrice() - $priceWithDiscount;
-
-            if($priceDiscount > 0) {
-                $discountPercent = (round((float)$priceDiscount,2) / round((float)$product->getBaseOriginalPrice(), 2)) * 100;
-            }
-
-            $products->addProduct(new ProductEntity(
-                $this->productsService->getProduct($product->getProduct()),
-                $product->getName(),
-                (float)$product->getQtyOrdered(),
-                $price,
-                $taxes,
-                $exemption_reason,
-                $discountPercent
-            ));
+            $products->addProduct($this->buildProductEntity($product, $order));
         }
 
         if(count($products->getProducts()) > 0) {
