@@ -34,7 +34,6 @@ class InvoicePay implements ObserverInterface
     ) {
         $this->queuePublisher = $queuePublisher;
         $this->queueMessageFactory = $queueMessageFactory;
-        parent::__construct();
     }
 
     /**
