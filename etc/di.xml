@@ -17,15 +17,27 @@
 
     <preference for="Vivapets\Moloni\Api\Queue\MessageInterface" type="Vivapets\Moloni\Queue\Message" />
 
+
+    <type name="Vivapets\Moloni\Logger\Handler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+
+    <type name="Vivapets\Moloni\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">moloniLogger</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="system" xsi:type="object">Vivapets\Moloni\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
+
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="vivapets:moloni:moloni-invoice" xsi:type="object">Vivapets\Moloni\Console\Command\MoloniInvoiceCommand</item>
             </argument>
         </arguments>
-    </type>
-
-    <type name="Magento\Sales\Api\OrderManagementInterface">
-        <plugin name="Vivapets_Moloni::OrderPlaceAfterPlugin" type="Vivapets\Moloni\Plugin\Sales\Api\OrderManagement" sortOrder="99" />
     </type>
 </config>

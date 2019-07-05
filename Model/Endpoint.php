@@ -9,6 +9,7 @@ use Vivapets\Moloni\Model\Session;
 use Vivapets\Moloni\Api\EndpointInterface;
 use Vivapets\Moloni\Exceptions\ApiResponseException;
 use Vivapets\Moloni\Exceptions\ApiAuthenticationException;
+use Vivapets\Moloni\Logger\Logger;
 
 abstract class Endpoint implements EndpointInterface
 {
@@ -23,17 +24,25 @@ abstract class Endpoint implements EndpointInterface
     protected $session;
 
     /**
+     * @var \Vivapets\Moloni\Logger\Logger
+     */
+    protected $logger;
+
+    /**
      * @param  \Vivapets\Moloni\Model\Client  $client
      * @param  \Vivapets\Moloni\Model\Session  $session
+     * @param  \Vivapets\Moloni\Logger\Logger  $logger
      *
      * @return void
      */
     public function __construct(
         Client $client,
-        Session $session
+        Session $session,
+        Logger $logger
     ) {
         $this->client = $client;
         $this->session = $session;
+        $this->logger = $logger;
     }
 
     /**
@@ -67,8 +76,13 @@ abstract class Endpoint implements EndpointInterface
 
             return $this->client->post($endpointUri, $body, $params);
         } catch(ApiAuthenticationException $e) {
-            // @TODO: Implement proper error handling
-            echo $e->getMessage();
+            $this->logger->info(sprintf('[MOLONI AUTH ERROR] %s', $e->getMessage()));
+            return false;
+        } catch(ApiResponseException $e) {
+            $this->logger->info(sprintf('[MOLONI API RESPONSE ERROR] %s', $e->getMessage()));
+            return false;
+        } catch(\Exception $e) {
+            $this->logger->info(sprintf('[MOLONI INTEGRATION ERROR] %s', $e->getMessage()));
             return false;
         }
     }

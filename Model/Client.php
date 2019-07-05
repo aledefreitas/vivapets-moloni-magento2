@@ -77,12 +77,12 @@ class Client
         }
 
         if(isset($response['valid']) and $response['valid'] == 0) {
-            throw new ApiResponseException(__('An error occurred while trying to request Moloni Endpoint "%1". Response: %2', $response['msg']));
+            throw new ApiResponseException(__('An error occurred while trying to request Moloni Endpoint "%1". Response: %2 | Request: %3', $endpoint, $response['msg'], $body));
         }
 
         if(isset($response[0])) {
             if(isset($response[0]['code']) and isset($response[0]['description'])) {
-                throw new ApiResponseException(__('An error occurred while trying to request Moloni Endpoint "%1". Response: %2', $endpoint, $this->curl->getBody()));
+                throw new ApiResponseException(__('An error occurred while trying to request Moloni Endpoint "%1". Response: %2 | Request: %3', $endpoint, $this->curl->getBody(), $body));
             }
         }
 

@@ -64,7 +64,7 @@ class Session implements CredentialsInterface
                 }
 
                 return $response['access_token'];
-            }, 3000 /* 50 minutes lifetime */);
+            }, 1500 /* 25 minutes lifetime */);
 
             return $this->accessToken;
         } catch(ApiResponseException $e) {

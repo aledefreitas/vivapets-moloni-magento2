@@ -14,6 +14,7 @@ use Vivapets\Moloni\Helper\Tax\Calculation;
 use Vivapets\Moloni\Api\CredentialsInterface;
 use Vivapets\Moloni\Model\Entities\TaxesCollectionEntity;
 use Vivapets\Moloni\Model\Entities\TaxEntity;
+use Vivapets\Moloni\Exceptions\ApiResponseException;
 
 use Magento\Catalog\Model\Product;
 
@@ -84,7 +85,13 @@ class Products
      */
     public function getProduct(Product $product)
     {
-        return $this->collectProduct($product->getSku()) ?: $this->insertProduct($product);
+        $product_id = $this->collectProduct($product->getSku()) ?: $this->insertProduct($product);
+
+        if(!isset($product_id)) {
+            throw new ApiResponseException('Product not found and couldn`t be added to Moloni');
+        }
+
+        return $product_id;
     }
 
     /**
@@ -141,7 +148,7 @@ class Products
         return $this->cache->remember("Moloni_Products_{$sku}", function() use ($sku) {
             $products = $this->productsApi->getByReference(CredentialsInterface::MOLONI_CREDENTIALS_COMPANYID, $sku);
 
-            return isset($products[0]) ? $products[0]['product_id'] : null;
+            return isset($products[0]) ? $products[0]['product_id'] : false;
         });
     }
 }

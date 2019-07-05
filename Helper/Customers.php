@@ -103,7 +103,12 @@ class Customers
     public function getCustomer(OrderInterface $order)
     {
         $billingAddress = $order->getBillingAddress();
-        $customer_number = $order->getCustomerId() ?? $this->generateGuestCustomerId($billingAddress);
+
+        if($order->getCustomerId()) {
+            $customer_number = $this->generateCustomerId($order->getStoreId(), $order->getCustomerId());
+        } else {
+            $customer_number = $this->generateGuestCustomerId($order->getStoreId(), $billingAddress);
+        }
 
         $customer_id = $this->collectCustomer($customer_number);
 
@@ -113,15 +118,29 @@ class Customers
     }
 
     /**
+     * Generates a customer id to add to moloni
+     *
+     * @param  int  $store_id
+     * @param  int  $customer_id
+     *
+     * @return string
+     */
+    private function generateCustomerId(int $store_id, $customer_id)
+    {
+        return (string)($store_id . str_pad($customer_id, 15, '0', STR_PAD_LEFT));
+    }
+
+    /**
      * Generates a guest customer id
      *
+     * @param  int  $store_id
      * @param  \Magento\Sales\Api\Data\OrderAddressInterface  $billingAddress
      *
      * @return string
      */
-    private function generateGuestCustomerId(OrderAddressInterface $billingAddress)
+    private function generateGuestCustomerId(int $store_id, OrderAddressInterface $billingAddress)
     {
-        return (string)($this->storeManager->getStore()->getId() . str_pad($billingAddress->getEntityId(), 7, '0', STR_PAD_LEFT));
+        return (string)($store_id . str_pad($billingAddress->getEntityId(), 15, '0', STR_PAD_LEFT));
     }
 
     /**

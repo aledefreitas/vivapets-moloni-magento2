@@ -57,7 +57,6 @@ class InvoicesConsumer implements ConsumerInterface
      */
     public function processMessage(MessageInterface $message)
     {
-        // @TODO: Implement a better error reporting mechanism
         try {
             $data = unserialize($message->getMessage());
 
@@ -65,15 +64,17 @@ class InvoicesConsumer implements ConsumerInterface
 
             $this->invoiceReceiptsService->createInvoiceReceipt($order);
         } catch(ApiResponseException $e) {
-            echo 'ERROR IN ORDER #' . $order->getEntityId() . PHP_EOL;
+            echo 'ERROR IN ORDER #' . $data['order_id'] . PHP_EOL;
             echo $e->getMessage();
             echo PHP_EOL;
             echo PHP_EOL;
         } catch(NoSuchEntityException $e) {
+            echo 'ERROR IN ORDER #' . $data['order_id'] . PHP_EOL;
             echo $e->getMessage();
             echo PHP_EOL;
             echo PHP_EOL;
         } catch(\Exception $e) {
+            echo 'ERROR IN ORDER #' . $data['order_id'] . PHP_EOL;
             echo $e->getMessage();
             echo PHP_EOL;
             echo PHP_EOL;

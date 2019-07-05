@@ -199,6 +199,8 @@ class InvoiceReceipts
             }
         }
 
+        $orderDiscount = (float)$order->getBaseDiscountAmount();
+
         $document_set_series = $order->getStoreId() == 2 ? 'M' : 'V';
 
         return $this->invoiceReceiptsApi->insert(
@@ -219,6 +221,7 @@ class InvoiceReceipts
                 'status' => 0,
                 'notes' => $currency_total_note . '
                 EORI PT514753790',
+                'special_discount' => abs($orderDiscount),
             ]
         );
     }
@@ -323,6 +326,12 @@ class InvoiceReceipts
             }
 
             $shipping_cost = round((($order->getBaseShippingInclTax() * 100) / (100 + $taxRate)), 5);
+            $priceDiscount = (float)$order->getBaseShippingDiscountAmount();
+
+            $discountPercent = 0;
+            if($priceDiscount > 0) {
+                $discountPercent = (round((float)$priceDiscount,2) / round((float)$order->getBaseShippingInclTax(), 2)) * 100;
+            }
 
             $products->addProduct(new ProductEntity(
                 $this->shippingProductService->getShipping(),
@@ -330,7 +339,8 @@ class InvoiceReceipts
                 1.00,
                 $shipping_cost,
                 $taxes,
-                $exemption_reason
+                $exemption_reason,
+                $discountPercent
             ));
         }
 

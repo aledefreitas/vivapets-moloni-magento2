@@ -7,6 +7,7 @@ namespace Vivapets\Moloni\Queue\Publishers;
 use Vivapets\Moloni\Api\Queue\MessageInterface;
 use Vivapets\Moloni\Api\Queue\PublisherInterface;
 use Magento\Framework\MessageQueue\PublisherInterface as MagentoPublisher;
+use Vivapets\Moloni\Logger\Logger;
 
 class InvoicesPublisher implements PublisherInterface
 {
@@ -21,13 +22,21 @@ class InvoicesPublisher implements PublisherInterface
     private $publisher;
 
     /**
+     * @var \Vivapets\Moloni\Logger\Logger
+     */
+    protected $logger;
+
+    /**
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
      *
      * @return void
      */
-    public function __construct(MagentoPublisher $publisher)
-    {
+    public function __construct(
+        MagentoPublisher $publisher,
+        Logger $logger
+    ) {
         $this->publisher = $publisher;
+        $this->logger = $logger;
     }
 
     /**
@@ -35,6 +44,11 @@ class InvoicesPublisher implements PublisherInterface
      */
     public function publish(MessageInterface $message)
     {
-        $this->publisher->publish(self::TOPIC_NAME, $message);
+        try {
+            $this->publisher->publish(self::TOPIC_NAME, $message);
+        } catch(\Exception $e) {
+            $this->logger->info(sprintf('Error publishing message to moloni worker: %s', $e->getMessage()));
+            return;
+        }
     }
 }
